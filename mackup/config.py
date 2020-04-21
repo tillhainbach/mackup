@@ -2,10 +2,10 @@
 
 import os
 import os.path
-
 from .appsdb import ApplicationsDatabase
 
 from .constants import (
+    APPS_DIR,
     CUSTOM_APPS_DIR,
     MACKUP_BACKUP_PATH,
     MACKUP_CONFIG_FILE,
@@ -19,6 +19,7 @@ from .constants import (
 from .utils import (
     error,
     warn,
+    get_supported_applications,
     get_closest_match,
     get_dropbox_folder_location,
     get_copy_folder_location,
@@ -166,9 +167,8 @@ class Config(object):
             section (str)
             option (str)
         """
+        app_names = get_supported_applications(ApplicationsDatabase.get_config_files())
 
-        appdb = ApplicationsDatabase()
-        app_names = appdb.get_app_names()
         supported_options = {
             "storage": ["engine", "path", "directory"],
             "applications_to_sync": app_names,
