@@ -174,12 +174,22 @@ class Config(object):
             supported_options_for_section = supported_options[section]
             if option not in supported_options_for_section:
                 closest_match = get_closest_match(option, supported_options_for_section)
-                warn("Unsupported option '{}' for section ['{}']\n"
-                    "Did you mean '{}'?".format(option, section, closest_match))
+                if 'applications' in section:
+                    message = "Application '{}' is not yet supported by Mackup.".format(option)
+                    message += "\n\tYou may add support for it. See"
+                    message += " https://github.com/lra/mackup/tree/master/doc#get-official-support-for-an-application"
+                    message += " for details."
+                else:
+                    message = "Unsupported option '{}' for section ['{}']!".format(option, section)
+                
+                if closest_match:
+                    message += "\n\tDid you mean '{}'?".format(closest_match)
+                warn(message)
+                self._parser.remove_option(section, option)            
         except KeyError:
             warn("Unsupported option '{}' for section [{}]!\nNOTE: This section has no options.".format(option, section))
-
-
+            self._parser.remove_option(section, option)
+    
     def _warn_on_unsupported_section(self):
         """
         Check if all sections in the config file are actually supported
@@ -196,8 +206,8 @@ class Config(object):
         for section in self._parser.sections():
             if section not in supported_sections:
                 closest_match = get_closest_match(section, supported_sections)
-                warn("Unsupported section '[{}]' detected\n"
-                     "Did you mean '[{}]'?".format(section, closest_match))
+                warn("Unsupported section '[{}]' detected!\n"
+                     "\tDid you mean '[{}]'?".format(section, closest_match))
             else:
                 for option in self._parser.options(section):
                     self._warn_on_unsupported_option(section, option)
