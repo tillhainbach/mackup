@@ -166,48 +166,69 @@ class Config(object):
             section (str)
             option (str)
         """
-        supported_options = {"storage" : ["engine", "path", "directory"],
-                             "applications_to_sync" : ApplicationsDatabase().get_app_names(),
-                            "application" : ["name"]}
+        supported_options = {
+            "storage": ["engine", "path", "directory"],
+            "applications_to_sync": ApplicationsDatabase().get_app_names(),
+            "applications_to_ignore": ApplicationsDatabase().get_app_names(),
+            "application": ["name"],
+        }
+        if not "files" in section:
+            # not sure if "file not found" is catched elsewhere
+            try:
+                supported_options_for_section = supported_options[section]
+                if option not in supported_options_for_section:
+                    closest_match = get_closest_match(
+                        option, supported_options_for_section
+                    )
+                    if "applications" in section:
+                        message = "Application '{}' is not yet supported by Mackup.".format(
+                            option
+                        )
+                        message += "\n\tYou may add support for it. See"
+                        message += " https://github.com/lra/mackup/tree/master/doc#get-official-support-for-an-application"
+                        message += " for details."
+                        if closest_match:
+                            message += "\n\tOr did you mean '{}'?".format(closest_match)
+                        if section == "applications_to_sync":
+                            self._parser.remove_option(section, option)
+                    else:
+                        message = "Unsupported option '{}' for section ['{}']!".format(
+                            option, section
+                        )
+                        if closest_match:
+                            message += "\n\tDid you mean '{}'?".format(closest_match)
+                    warn(message)
 
-        try:
-            supported_options_for_section = supported_options[section]
-            if option not in supported_options_for_section:
-                closest_match = get_closest_match(option, supported_options_for_section)
-                if 'applications' in section:
-                    message = "Application '{}' is not yet supported by Mackup.".format(option)
-                    message += "\n\tYou may add support for it. See"
-                    message += " https://github.com/lra/mackup/tree/master/doc#get-official-support-for-an-application"
-                    message += " for details."
-                else:
-                    message = "Unsupported option '{}' for section ['{}']!".format(option, section)
-                
-                if closest_match:
-                    message += "\n\tDid you mean '{}'?".format(closest_match)
-                warn(message)
-                self._parser.remove_option(section, option)            
-        except KeyError:
-            warn("Unsupported option '{}' for section [{}]!\nNOTE: This section has no options.".format(option, section))
-            self._parser.remove_option(section, option)
-    
+            except KeyError:
+                warn(
+                    "Unsupported option '{}' for section [{}]!\nNOTE: This section has no options.".format(
+                        option, section
+                    )
+                )
+                self._parser.remove_option(section, option)
+
     def _warn_on_unsupported_section(self):
         """
         Check if all sections in the config file are actually supported
         by Mackup.
         """
 
-        supported_sections = ["storage",
-                              "applications_to_sync",
-                              "applications_to_ignore",
-                              "application",
-                              "configuration_files",
-                              "xdg_configuration_files"]
+        supported_sections = [
+            "storage",
+            "applications_to_sync",
+            "applications_to_ignore",
+            "application",
+            "configuration_files",
+            "xdg_configuration_files",
+        ]
 
         for section in self._parser.sections():
             if section not in supported_sections:
                 closest_match = get_closest_match(section, supported_sections)
-                warn("Unsupported section '[{}]' detected!\n"
-                     "\tDid you mean '[{}]'?".format(section, closest_match))
+                warn(
+                    "Unsupported section '[{}]' detected!\n"
+                    "\tDid you mean '[{}]'?".format(section, closest_match)
+                )
             else:
                 for option in self._parser.options(section):
                     self._warn_on_unsupported_option(section, option)

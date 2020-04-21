@@ -193,6 +193,7 @@ def error(message):
     end = "\033[0m"
     sys.exit(fail + "Error: {}".format(message) + end)
 
+
 def warn(message):
     """
     Throw an error with the given message and immediately quit.
@@ -305,6 +306,7 @@ def get_icloud_folder_location():
 
     return str(icloud_home)
 
+
 def get_closest_match(word, possibilities):
     """
     Find closest matching string in a list of strings.
@@ -317,15 +319,15 @@ def get_closest_match(word, possibilities):
     Returns
         closest_match (str)
     """
-    
+
     close_matches = difflib.get_close_matches(word, possibilities, 1)
     if close_matches:
         # match found
-        closest_match = close_matches [0]
+        closest_match = close_matches[0]
     else:
         # no match found
-        closest_match = ''
-    
+        closest_match = ""
+
     return closest_match
 
 
