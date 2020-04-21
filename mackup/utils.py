@@ -306,9 +306,27 @@ def get_icloud_folder_location():
     return str(icloud_home)
 
 def get_closest_match(word, possibilities):
-        closest_match = difflib.get_close_matches(word, possibilities, 1) [0]
+    """
+    Find closest matching string in a list of strings.
+    Returns an empty string if no match was found
+
+    Args:
+        word (str)
+        possibilities ([str])
+
+    Returns
+        closest_match (str)
+    """
     
-        return closest_match
+    close_matches = difflib.get_close_matches(word, possibilities, 1)
+    if close_matches:
+        # match found
+        closest_match = close_matches [0]
+    else:
+        # no match found
+        closest_match = ''
+    
+    return closest_match
 
 
 def is_process_running(process_name):
