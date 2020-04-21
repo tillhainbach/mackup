@@ -30,7 +30,7 @@ class ApplicationsDatabase(object):
 
             # Needed to not lowercase the configuration_files in the ini files
             config.optionxform = str
-            #print(config_file)
+            # print(config_file)
             if config.read(config_file):
                 # Get the filename without the directory name
                 filename = os.path.basename(config_file)
