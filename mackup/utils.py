@@ -6,6 +6,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import difflib
 import sqlite3
 from six.moves import input
 
@@ -192,6 +193,17 @@ def error(message):
     end = "\033[0m"
     sys.exit(fail + "Error: {}".format(message) + end)
 
+def warn(message):
+    """
+    Throw an error with the given message and immediately quit.
+
+    Args:
+        message(str): The message to display.
+    """
+    warn_color = "\033[33m"
+    end = "\033[0m"
+    print(warn_color + "Warnig: {}".format(message) + end)
+
 
 def get_dropbox_folder_location():
     """
@@ -292,6 +304,11 @@ def get_icloud_folder_location():
         error("Unable to find your iCloud Drive =(")
 
     return str(icloud_home)
+
+def get_closest_match(word, possibilities):
+        closest_match = difflib.get_close_matches(word, possibilities, 1) [0]
+    
+        return closest_match
 
 
 def is_process_running(process_name):
