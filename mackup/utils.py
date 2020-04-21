@@ -394,6 +394,11 @@ def remove_immutable_attribute(path):
     ):
         subprocess.call(["/usr/bin/chattr", "-R", "-f", "-i", path])
 
+def get_supported_applications(config_files):
+
+    supported_applications = [os.path.basename(filename)[:-len(".cfg")] for filename in config_files]
+
+    return supported_applications
 
 def can_file_be_synced_on_current_platform(path):
     """
