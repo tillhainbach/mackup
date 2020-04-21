@@ -30,7 +30,7 @@ class ApplicationsDatabase(object):
 
             # Needed to not lowercase the configuration_files in the ini files
             config.optionxform = str
-
+            #print(config_file)
             if config.read(config_file):
                 # Get the filename without the directory name
                 filename = os.path.basename(config_file)
@@ -148,13 +148,11 @@ class ApplicationsDatabase(object):
         database.
 
         Returns:
-            set of str.
+            list of str.
         """
-        app_names = set()
-        for name in self.apps:
-            app_names.add(name)
 
-        return app_names
+        # using set is redundant, dictionary keys are by definition unique!
+        return self.apps.keys()
 
     def get_pretty_app_names(self):
         """
