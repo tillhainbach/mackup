@@ -166,10 +166,13 @@ class Config(object):
             section (str)
             option (str)
         """
+
+        appdb = ApplicationsDatabase()
+        app_names = appdb.get_app_names()
         supported_options = {
             "storage": ["engine", "path", "directory"],
-            "applications_to_sync": ApplicationsDatabase().get_app_names(),
-            "applications_to_ignore": ApplicationsDatabase().get_app_names(),
+            "applications_to_sync": app_names,
+            "applications_to_ignore": app_names,
             "application": ["name"],
         }
         if not "files" in section:
