@@ -53,8 +53,12 @@ class Config(object):
         # Do we have an old config file ?
         self._warn_on_old_config()
 
-        # Do we have unsupported sections or unsupported options within sections?
-        self._warn_on_unsupported_section()
+        # Do we have unsupported sections or unsupported options
+        # within sections?
+        self.warnings = self._warn_on_unsupported_section()
+
+        # Get custom_apps_ir
+        self._custom_apps_dir = self._parse_custom_apps_dir()
 
         # Get the storage engine
         self._engine = self._parse_engine()
@@ -167,7 +171,8 @@ class Config(object):
             section (str)
             option (str)
         """
-        app_names = get_supported_applications(ApplicationsDatabase.get_config_files())
+        app_names = get_supported_applications(
+            ApplicationsDatabase.get_config_files())
 
         supported_options = {
             "storage": ["engine", "path", "directory"],
@@ -177,6 +182,7 @@ class Config(object):
         }
         if not "files" in section:
             # not sure if "file not found" is catched elsewhere
+            message = ""
             try:
                 supported_options_for_section = supported_options[section]
                 if option not in supported_options_for_section:
@@ -184,31 +190,33 @@ class Config(object):
                         option, supported_options_for_section
                     )
                     if "applications" in section:
-                        message = "Application '{}' is not yet supported by Mackup.".format(
-                            option
-                        )
-                        message += "\n\tYou may add support for it. See"
-                        message += " https://github.com/lra/mackup/tree/master/doc#get-official-support-for-an-application"
-                        message += " for details."
+                        message = ("Application '{}' is not yet supported by "
+                                  "Mackup.\n"
+                                  "\tYou may add support for it. See "
+                                  "https://github.com/lra/mackup/tree/master/"
+                                  "doc#get-official-support-for-an-application"
+                                  " for details.").format(option)
                         if closest_match:
-                            message += "\n\tOr did you mean '{}'?".format(closest_match)
+                            message += "\n\tOr did you mean '{}'?".format(
+                                closest_match)
                         if section == "applications_to_sync":
                             self._parser.remove_option(section, option)
                     else:
-                        message = "Unsupported option '{}' for section ['{}']!".format(
-                            option, section
-                        )
+                        message = ("Unsupported option '{}' for section"
+                                  "['{}']!").format(option, section)
                         if closest_match:
-                            message += "\n\tDid you mean '{}'?".format(closest_match)
-                    warn(message)
+                            message += "\n\tDid you mean '{}'?".format(
+                                closest_match)
 
             except KeyError:
-                warn(
-                    "Unsupported option '{}' for section [{}]!\nNOTE: This section has no options.".format(
-                        option, section
-                    )
-                )
                 self._parser.remove_option(section, option)
+                message = ("Unsupported option '{}' for section [{}]!\nNOTE:"
+                           "This section has no options.").format(option,
+                                                                  section)
+
+            if message:
+                yield message
+
 
     def _warn_on_unsupported_section(self):
         """
@@ -228,13 +236,13 @@ class Config(object):
         for section in self._parser.sections():
             if section not in supported_sections:
                 closest_match = get_closest_match(section, supported_sections)
-                warn(
-                    "Unsupported section '[{}]' detected!\n"
-                    "\tDid you mean '[{}]'?".format(section, closest_match)
-                )
+                message = ("Unsupported section '[{}]' detected!\n"
+                           "\tDid you mean '[{}]'?").format(section,
+                                                            closest_match)
+                yield message
             else:
                 for option in self._parser.options(section):
-                    self._warn_on_unsupported_option(section, option)
+                    yield from self._warn_on_unsupported_option(section, option)
 
     def _warn_on_old_config(self):
         """Warn the user if an old config format is detected."""
@@ -360,6 +368,23 @@ class Config(object):
             apps_to_sync = set(self._parser.options(section_title))
 
         return apps_to_sync
+
+    def _parse_custom_apps_dir(self):
+        """Parse the custom apps directory in the config.
+
+        Returns:
+            str
+        """
+        # Set custom_apps_dir to the default value from constants.py
+        custom_apps_dir = CUSTOM_APPS_DIR
+
+        # Check if the config file has "[custom_apps_dir]" section:
+        section_title = "custom_apps_dir"
+        #if self._parser.has_section(section_title):
+            #custom_apps_dir = self._parser.get(section_title, "directory")
+            #if custom_apps_dir =
+
+        return custom_apps_dir
 
 
 class ConfigError(Exception):

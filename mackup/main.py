@@ -83,6 +83,9 @@ def main():
     verbose = args["--verbose"]
 
     if args["backup"]:
+        # show warnings:
+        mckp.show_warnings()
+
         # Check the env where the command is being run
         mckp.check_for_usable_backup_env()
 
@@ -109,13 +112,16 @@ def main():
         mckp = Mackup()
         app_db = ApplicationsDatabase()
 
+        mckp.show_warnings()
+
         # Restore the rest of the app configs, using the restored Mackup config
         app_names = mckp.get_apps_to_backup()
         # Mackup has already been done
         app_names.discard(MACKUP_APP_NAME)
 
         for app_name in sorted(app_names):
-            app = ApplicationProfile(mckp, app_db.get_files(app_name), dry_run, verbose)
+            app = ApplicationProfile(
+                mckp, app_db.get_files(app_name), dry_run, verbose)
             printAppHeader(app_name)
             app.restore()
 

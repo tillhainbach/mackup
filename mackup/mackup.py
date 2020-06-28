@@ -26,6 +26,10 @@ class Mackup(object):
         self.mackup_folder = self._config.fullpath
         self.temp_folder = tempfile.mkdtemp(prefix="mackup_tmp_")
 
+    def show_warnings(self):
+        for warning in self._config.warnings:
+            utils.warn(warning)
+
     def check_for_usable_environment(self):
         """Check if the current env is usable and has everything's required."""
         # Allow only explicit superuser usage
