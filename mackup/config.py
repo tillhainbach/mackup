@@ -146,8 +146,10 @@ class Config(object):
 
     def get_warnings(self):
         """
-        Check the config_files for any unsupported sections or options
+        Get warnigs for any unsupported sections or options.
 
+        Returns:
+            list of str.
         """
         # Do we have unsupported sections or unsupported options
         # within sections?
