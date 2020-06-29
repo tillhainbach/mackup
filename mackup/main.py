@@ -83,8 +83,9 @@ def main():
     verbose = args["--verbose"]
 
     if args["backup"]:
-        # show warnings:
-        mckp.show_warnings()
+        if verbose or dry_run:
+            # show warnings:
+            mckp.show_warnings()
 
         # Check the env where the command is being run
         mckp.check_for_usable_backup_env()
@@ -112,7 +113,9 @@ def main():
         mckp = Mackup()
         app_db = ApplicationsDatabase()
 
-        mckp.show_warnings()
+        if verbose or dry_run:
+            # show warnings:
+            mckp.show_warnings()
 
         # Restore the rest of the app configs, using the restored Mackup config
         app_names = mckp.get_apps_to_backup()

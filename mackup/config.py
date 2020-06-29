@@ -54,10 +54,6 @@ class Config(object):
         # Do we have an old config file ?
         self._warn_on_old_config()
 
-        # Do we have unsupported sections or unsupported options
-        # within sections?
-        self.warnings = self._warn_on_unsupported_section()
-
         # Get custom_apps_ir
         self._custom_apps_dir = self._parse_custom_apps_dir()
 
@@ -143,6 +139,16 @@ class Config(object):
             set. Set of application names to allow, lowercase
         """
         return set(self._apps_to_sync)
+
+    @property
+    def warnings(self):
+        """
+        Check the config_files for any unsupported sections or options
+
+        """
+        # Do we have unsupported sections or unsupported options
+        # within sections?
+        return self._warn_on_unsupported_section()
 
     def _setup_parser(self, filename=None):
         """

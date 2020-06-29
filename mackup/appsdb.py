@@ -148,11 +148,11 @@ class ApplicationsDatabase(object):
         database.
 
         Returns:
-            list of str.
+            set of str.
         """
 
-        # using set is redundant, dictionary keys are by definition unique!
-        return self.apps.keys()
+        # using set.add is redundant, dictionary keys are by definition unique!
+        return set(self.apps.keys())
 
     def get_pretty_app_names(self):
         """
