@@ -120,8 +120,7 @@ def main():
         app_names.discard(MACKUP_APP_NAME)
 
         for app_name in sorted(app_names):
-            app = ApplicationProfile(
-                mckp, app_db.get_files(app_name), dry_run, verbose)
+            app = ApplicationProfile(mckp, app_db.get_files(app_name), dry_run, verbose)
             printAppHeader(app_name)
             app.restore()
 

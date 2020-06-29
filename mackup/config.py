@@ -15,7 +15,7 @@ from .constants import (
     ENGINE_ICLOUD,
     ENGINE_FS,
     MACKUP_CONFIG_FILE_SUPPORTED_SECTIONS,
-    MACKUP_CONFIG_FILE_SUPPORTED_OPTIONS
+    MACKUP_CONFIG_FILE_SUPPORTED_OPTIONS,
 )
 
 from .utils import (
@@ -172,8 +172,7 @@ class Config(object):
             section (str)
             option (str)
         """
-        app_names = get_supported_applications(
-            ApplicationsDatabase.get_config_files())
+        app_names = get_supported_applications(ApplicationsDatabase.get_config_files())
 
         supported_options = MACKUP_CONFIG_FILE_SUPPORTED_OPTIONS
         supported_options["applications_to_ignore"] = app_names
@@ -189,29 +188,31 @@ class Config(object):
                         option, supported_options_for_section
                     )
                     if "applications" in section:
-                        message = ("Application '{}' is not yet supported by "
-                                   "Mackup.\n"
-                                   "\tYou may add support for it. See "
-                                   "https://github.com/lra/mackup/tree/master/"
-                                   "doc#get-official-support-for-an-application"
-                                   " for details.").format(option)
+                        message = (
+                            "Application '{}' is not yet supported by "
+                            "Mackup.\n"
+                            "\tYou may add support for it. See "
+                            "https://github.com/lra/mackup/tree/master/"
+                            "doc#get-official-support-for-an-application"
+                            " for details."
+                        ).format(option)
                         if closest_match:
-                            message += '\n\tOr did you mean "{}"?'.format(
-                                closest_match)
+                            message += '\n\tOr did you mean "{}"?'.format(closest_match)
                         if section == "applications_to_sync":
                             self._parser.remove_option(section, option)
                     else:
-                        message = ('Unsupported option "{}" for section'
-                                   '["{}"]!').format(option, section)
+                        message = (
+                            'Unsupported option "{}" for section' '["{}"]!'
+                        ).format(option, section)
                         if closest_match:
-                            message += '\n\tDid you mean "{}"?'.format(
-                                closest_match)
+                            message += '\n\tDid you mean "{}"?'.format(closest_match)
 
             except KeyError:
                 self._parser.remove_option(section, option)
-                message = ('Unsupported option "{}" for section [{}]!\nNOTE:'
-                           "This section has no options.").format(option,
-                                                                  section)
+                message = (
+                    'Unsupported option "{}" for section [{}]!\nNOTE:'
+                    "This section has no options."
+                ).format(option, section)
 
             if message:
                 yield message
@@ -227,8 +228,7 @@ class Config(object):
         for section in self._parser.sections():
             if section not in supported_sections:
                 closest_match = get_closest_match(section, supported_sections)
-                message = 'Unsupported section "[{}]" detected!'.format(
-                    section)
+                message = 'Unsupported section "[{}]" detected!'.format(section)
                 if closest_match:
                     message += '\n\tDid you mean "[{}]"?'.format(closest_match)
                 yield message
@@ -372,9 +372,9 @@ class Config(object):
 
         # Check if the config file has "[custom_apps_dir]" section:
         section_title = "custom_apps_dir"
-        #if self._parser.has_section(section_title):
-            #custom_apps_dir = self._parser.get(section_title, "directory")
-            #if custom_apps_dir =
+        # if self._parser.has_section(section_title):
+        # custom_apps_dir = self._parser.get(section_title, "directory")
+        # if custom_apps_dir =
 
         return custom_apps_dir
 

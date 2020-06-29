@@ -284,7 +284,7 @@ class TestMackup(unittest.TestCase):
         sys.stdout = captured_output
         utils.warn(test_warning)
         sys.stdout = sys.__stdout__
-        expected_warning = ("\033[33mWarnig: This is a WARNING!\033[0m\n")
+        expected_warning = "\033[33mWarnig: This is a WARNING!\033[0m\n"
         assert captured_output.getvalue() == expected_warning
 
     def test_failed_backup_location(self):
