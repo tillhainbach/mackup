@@ -1,9 +1,9 @@
 import os
 import sys
-import io
 import tempfile
 import unittest
 import stat
+from six import StringIO
 
 # from unittest.mock import patch
 
@@ -279,8 +279,8 @@ class TestMackup(unittest.TestCase):
         self.assertRaises(SystemExit, utils.error, test_string)
 
     def test_warn(self):
-        test_warning = u"This is a WARNING!"
-        captured_output = io.StringIO()
+        test_warning = "This is a WARNING!"
+        captured_output = StringIO()
         sys.stdout = captured_output
         utils.warn(test_warning)
         sys.stdout = sys.__stdout__
