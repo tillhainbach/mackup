@@ -28,7 +28,7 @@ class Mackup(object):
 
     def show_warnings(self):
         """Emit config warnings."""
-        for warning in self._config.warnings:
+        for warning in self._config.get_warnings():
             utils.warn(warning)
 
     def check_for_usable_environment(self):

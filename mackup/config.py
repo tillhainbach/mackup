@@ -54,6 +54,10 @@ class Config(object):
         # Do we have an old config file ?
         self._warn_on_old_config()
 
+        # Do we have unsupported sections or unsupported options
+        # within sections?
+        self._warnings = self._warn_on_unsupported_section()
+
         # Get custom_apps_ir
         self._custom_apps_dir = self._parse_custom_apps_dir()
 
@@ -140,15 +144,14 @@ class Config(object):
         """
         return set(self._apps_to_sync)
 
-    @property
-    def warnings(self):
+    def get_warnings(self):
         """
         Check the config_files for any unsupported sections or options
 
         """
         # Do we have unsupported sections or unsupported options
         # within sections?
-        return self._warn_on_unsupported_section()
+        return self._warnings
 
     def _setup_parser(self, filename=None):
         """
@@ -183,6 +186,8 @@ class Config(object):
         supported_options = MACKUP_CONFIG_FILE_SUPPORTED_OPTIONS
         supported_options["applications_to_ignore"] = app_names
         supported_options["applications_to_sync"] = app_names
+
+        messages = []
 
         if "files" not in section:
             # not sure if "file not found" is catched elsewhere
@@ -221,7 +226,9 @@ class Config(object):
                 ).format(option, section)
 
             if message:
-                yield message
+                messages.append(message)
+
+        return messages
 
     def _warn_on_unsupported_section(self):
         """
@@ -231,17 +238,20 @@ class Config(object):
 
         supported_sections = MACKUP_CONFIG_FILE_SUPPORTED_SECTIONS
 
+        messages = []
+
         for section in self._parser.sections():
             if section not in supported_sections:
                 closest_match = get_closest_match(section, supported_sections)
                 message = 'Unsupported section "[{}]" detected!'.format(section)
                 if closest_match:
                     message += '\n\tDid you mean "[{}]"?'.format(closest_match)
-                yield message
+                messages.append(message)
             else:
                 for option in self._parser.options(section):
-                    for message in self._warn_on_unsupported_option(section, option):
-                        yield message
+                    messages += self._warn_on_unsupported_option(section, option)
+
+        return messages
 
     def _warn_on_old_config(self):
         """Warn the user if an old config format is detected."""
