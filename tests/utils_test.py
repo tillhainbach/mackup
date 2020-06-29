@@ -279,7 +279,7 @@ class TestMackup(unittest.TestCase):
         self.assertRaises(SystemExit, utils.error, test_string)
 
     def test_warn(self):
-        test_warning = "This is a WARNING!"
+        test_warning = u"This is a WARNING!"
         captured_output = io.StringIO()
         sys.stdout = captured_output
         utils.warn(test_warning)
