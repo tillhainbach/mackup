@@ -234,7 +234,8 @@ class Config(object):
                 yield message
             else:
                 for option in self._parser.options(section):
-                    yield from self._warn_on_unsupported_option(section, option)
+                    for message in self._warn_on_unsupported_option(section, option):
+                        yield message
 
     def _warn_on_old_config(self):
         """Warn the user if an old config format is detected."""
