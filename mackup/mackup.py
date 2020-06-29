@@ -27,6 +27,7 @@ class Mackup(object):
         self.temp_folder = tempfile.mkdtemp(prefix="mackup_tmp_")
 
     def show_warnings(self):
+        """Emit config warnings."""
         for warning in self._config.warnings:
             utils.warn(warning)
 
