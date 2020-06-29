@@ -14,11 +14,12 @@ from .constants import (
     ENGINE_COPY,
     ENGINE_ICLOUD,
     ENGINE_FS,
+    MACKUP_CONFIG_FILE_SUPPORTED_SECTIONS,
+    MACKUP_CONFIG_FILE_SUPPORTED_OPTIONS
 )
 
 from .utils import (
     error,
-    warn,
     get_supported_applications,
     get_closest_match,
     get_dropbox_folder_location,
@@ -174,13 +175,11 @@ class Config(object):
         app_names = get_supported_applications(
             ApplicationsDatabase.get_config_files())
 
-        supported_options = {
-            "storage": ["engine", "path", "directory"],
-            "applications_to_sync": app_names,
-            "applications_to_ignore": app_names,
-            "application": ["name"],
-        }
-        if not "files" in section:
+        supported_options = MACKUP_CONFIG_FILE_SUPPORTED_OPTIONS
+        supported_options["applications_to_ignore"] = app_names
+        supported_options["applications_to_sync"] = app_names
+
+        if "files" not in section:
             # not sure if "file not found" is catched elsewhere
             message = ""
             try:
@@ -191,32 +190,31 @@ class Config(object):
                     )
                     if "applications" in section:
                         message = ("Application '{}' is not yet supported by "
-                                  "Mackup.\n"
-                                  "\tYou may add support for it. See "
-                                  "https://github.com/lra/mackup/tree/master/"
-                                  "doc#get-official-support-for-an-application"
-                                  " for details.").format(option)
+                                   "Mackup.\n"
+                                   "\tYou may add support for it. See "
+                                   "https://github.com/lra/mackup/tree/master/"
+                                   "doc#get-official-support-for-an-application"
+                                   " for details.").format(option)
                         if closest_match:
-                            message += "\n\tOr did you mean '{}'?".format(
+                            message += '\n\tOr did you mean "{}"?'.format(
                                 closest_match)
                         if section == "applications_to_sync":
                             self._parser.remove_option(section, option)
                     else:
-                        message = ("Unsupported option '{}' for section"
-                                  "['{}']!").format(option, section)
+                        message = ('Unsupported option "{}" for section'
+                                   '["{}"]!').format(option, section)
                         if closest_match:
-                            message += "\n\tDid you mean '{}'?".format(
+                            message += '\n\tDid you mean "{}"?'.format(
                                 closest_match)
 
             except KeyError:
                 self._parser.remove_option(section, option)
-                message = ("Unsupported option '{}' for section [{}]!\nNOTE:"
+                message = ('Unsupported option "{}" for section [{}]!\nNOTE:'
                            "This section has no options.").format(option,
                                                                   section)
 
             if message:
                 yield message
-
 
     def _warn_on_unsupported_section(self):
         """
@@ -224,21 +222,15 @@ class Config(object):
         by Mackup.
         """
 
-        supported_sections = [
-            "storage",
-            "applications_to_sync",
-            "applications_to_ignore",
-            "application",
-            "configuration_files",
-            "xdg_configuration_files",
-        ]
+        supported_sections = MACKUP_CONFIG_FILE_SUPPORTED_SECTIONS
 
         for section in self._parser.sections():
             if section not in supported_sections:
                 closest_match = get_closest_match(section, supported_sections)
-                message = ("Unsupported section '[{}]' detected!\n"
-                           "\tDid you mean '[{}]'?").format(section,
-                                                            closest_match)
+                message = 'Unsupported section "[{}]" detected!'.format(
+                    section)
+                if closest_match:
+                    message += '\n\tDid you mean "[{}]"?'.format(closest_match)
                 yield message
             else:
                 for option in self._parser.options(section):

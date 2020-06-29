@@ -27,3 +27,20 @@ ENGINE_DROPBOX = "dropbox"
 ENGINE_FS = "file_system"
 ENGINE_GDRIVE = "google_drive"
 ENGINE_ICLOUD = "icloud"
+
+# supported section in .mackup.cfg-file:
+MACKUP_CONFIG_FILE_SUPPORTED_SECTIONS = [
+    "storage",
+    "applications_to_sync",
+    "applications_to_ignore",
+    "application",
+    "configuration_files",
+    "xdg_configuration_files",
+]
+
+MACKUP_CONFIG_FILE_SUPPORTED_OPTIONS = {
+    "storage": ["engine", "path", "directory"],
+    "applications_to_sync": [],
+    "applications_to_ignore": [],
+    "application": ["name"],
+}
