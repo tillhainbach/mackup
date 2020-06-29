@@ -2,8 +2,10 @@
 
 import os
 import os.path
+from .appsdb import ApplicationsDatabase
 
 from .constants import (
+    APPS_DIR,
     CUSTOM_APPS_DIR,
     MACKUP_BACKUP_PATH,
     MACKUP_CONFIG_FILE,
@@ -16,6 +18,9 @@ from .constants import (
 
 from .utils import (
     error,
+    warn,
+    get_supported_applications,
+    get_closest_match,
     get_dropbox_folder_location,
     get_copy_folder_location,
     get_google_drive_folder_location,
@@ -47,6 +52,9 @@ class Config(object):
 
         # Do we have an old config file ?
         self._warn_on_old_config()
+
+        # Do we have unsupported sections or unsupported options within sections?
+        self._warn_on_unsupported_section()
 
         # Get the storage engine
         self._engine = self._parse_engine()
@@ -149,8 +157,84 @@ class Config(object):
 
         parser = configparser.SafeConfigParser(allow_no_value=True)
         parser.read(os.path.join(os.path.join(os.environ["HOME"], filename)))
-
         return parser
+
+    def _warn_on_unsupported_option(self, section, option):
+        """
+        Print a warning if an option is not supported for a given section.
+
+        Args:
+            section (str)
+            option (str)
+        """
+        app_names = get_supported_applications(ApplicationsDatabase.get_config_files())
+
+        supported_options = {
+            "storage": ["engine", "path", "directory"],
+            "applications_to_sync": app_names,
+            "applications_to_ignore": app_names,
+            "application": ["name"],
+        }
+        if not "files" in section:
+            # not sure if "file not found" is catched elsewhere
+            try:
+                supported_options_for_section = supported_options[section]
+                if option not in supported_options_for_section:
+                    closest_match = get_closest_match(
+                        option, supported_options_for_section
+                    )
+                    if "applications" in section:
+                        message = "Application '{}' is not yet supported by Mackup.".format(
+                            option
+                        )
+                        message += "\n\tYou may add support for it. See"
+                        message += " https://github.com/lra/mackup/tree/master/doc#get-official-support-for-an-application"
+                        message += " for details."
+                        if closest_match:
+                            message += "\n\tOr did you mean '{}'?".format(closest_match)
+                        if section == "applications_to_sync":
+                            self._parser.remove_option(section, option)
+                    else:
+                        message = "Unsupported option '{}' for section ['{}']!".format(
+                            option, section
+                        )
+                        if closest_match:
+                            message += "\n\tDid you mean '{}'?".format(closest_match)
+                    warn(message)
+
+            except KeyError:
+                warn(
+                    "Unsupported option '{}' for section [{}]!\nNOTE: This section has no options.".format(
+                        option, section
+                    )
+                )
+                self._parser.remove_option(section, option)
+
+    def _warn_on_unsupported_section(self):
+        """
+        Check if all sections in the config file are actually supported
+        by Mackup.
+        """
+
+        supported_sections = [
+            "storage",
+            "applications_to_sync",
+            "applications_to_ignore",
+            "application",
+            "configuration_files",
+            "xdg_configuration_files",
+        ]
+
+        for section in self._parser.sections():
+            if section not in supported_sections:
+                closest_match = get_closest_match(section, supported_sections)
+                warn(
+                    "Unsupported section '[{}]' detected!\n"
+                    "\tDid you mean '[{}]'?".format(section, closest_match)
+                )
+            else:
+                for option in self._parser.options(section):
+                    self._warn_on_unsupported_option(section, option)
 
     def _warn_on_old_config(self):
         """Warn the user if an old config format is detected."""
