@@ -1,4 +1,6 @@
 import os
+import sys
+import io
 import tempfile
 import unittest
 import stat
@@ -275,6 +277,15 @@ class TestMackup(unittest.TestCase):
     def test_error(self):
         test_string = "Hello World"
         self.assertRaises(SystemExit, utils.error, test_string)
+
+    def test_warn(self):
+        test_warning = "This is a WARNING!"
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        utils.warn(test_warning)
+        sys.stdout = sys.__stdout__
+        expected_warning = ("\033[33mWarnig: This is a WARNING!\033[0m\n")
+        assert captured_output.getvalue() == expected_warning
 
     def test_failed_backup_location(self):
         """
