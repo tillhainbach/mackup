@@ -232,3 +232,39 @@ class TestConfig(unittest.TestCase):
 
     def test_config_old_config(self):
         self.assertRaises(SystemExit, Config, "mackup-old-config.cfg")
+
+    def test_config_warn_on_unsupported_section(self):
+        cfg = Config("mackup-unsupported-section.cfg")
+
+        warnings = list(cfg.warnings)
+        assert warnings == ['Unsupported section "[unsupported section]" detected!']
+
+    def test_config_warn_on_unsupported_section_caused_by_typo(self):
+        cfg = Config("mackup-unsupported-section-typo.cfg")
+
+        warnings = list(cfg.warnings)
+        assert warnings == ['Unsupported section "[appilcations_to_sync]" detected!\n\tDid you mean "[applications_to_sync]"?']
+
+    def test_config_warn_on_unsupported_option(self):
+        cfg = Config("mackup-unsupported-option.cfg")
+
+        warnings = list(cfg.warnings)
+        assert warnings == ['Unsupported option "unknown_option" for section["storage"]!']
+
+    def test_config_warn_on_unsupported_option_caused_by_typo(self):
+        cfg = Config("mackup-unsupported-option-typo.cfg")
+
+        warnings = list(cfg.warnings)
+        assert warnings == ['Unsupported option "directoy" for section["storage"]!\n\tDid you mean "directory"?']
+
+    def test_config_warn_on_unsupported_application(self):
+        cfg = Config("mackup-unsupported-application.cfg")
+
+        warnings = list(cfg.warnings)
+        assert warnings == ["Application 'unknown_app' is not yet supported by Mackup.\n\tYou may add support for it. See https://github.com/lra/mackup/tree/master/doc#get-official-support-for-an-application for details."]
+
+    def test_config_warn_on_unsupported_application_caused_by_typo(self):
+        cfg = Config("mackup-unsupported-application-typo.cfg")
+
+        warnings = list(cfg.warnings)
+        assert warnings == ['Application \'sublime-tet-3\' is not yet supported by Mackup.\n\tYou may add support for it. See https://github.com/lra/mackup/tree/master/doc#get-official-support-for-an-application for details.\n\tOr did you mean "sublime-text-3"?']
