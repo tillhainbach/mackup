@@ -196,7 +196,7 @@ def error(message):
 
 def warn(message):
     """
-    Throw an error with the given message and immediately quit.
+    Throw a warning with the given message.
 
     Args:
         message(str): The message to display.
